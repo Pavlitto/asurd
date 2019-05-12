@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    АСУРД
+    <link rel="stylesheet" href="{% static 'django_tables2/themes/paleblue/css/screen.css' %}" />
+{% endblock %}
+{% block body_class %}
+{% endblock %}
+{% block content %}
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+    <label>Загрузка файла</label>
+    <input type="file" name="file">
+    <p>Загрузка производится только файлов формата CSV</p>
+    <button type="submit">Загрузить</button>
+    <div class="progress">
+        <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+            0%
+        </div>
+    </div>
+    </form>
+{% endblock %}

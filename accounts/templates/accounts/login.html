@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{# phonebook/templates/phonebool/CDL.html #}
+{% load render_table from django_tables2 %}
+{% load static %}
+
+{% block title %}
+    Справочник телефонов
+    <link rel="stylesheet" href="{% static 'django_tables2/themes/paleblue/css/screen.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'phonebook/style.css' %}" />
+{% endblock %}
+{% block body_class %}
+
+{% endblock %}
+{% block content %}
+    <form action="" method="post">
+      {% csrf_token %}
+      <!-- as_p для того, чтобы каждый элемент формы был с новой строки -->
+      {{ form.as_p }}
+      <button type="submit">Войти</button>
+    </form>
+
+{% endblock %}
