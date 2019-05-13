@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+АСУРД
+
+{% endblock %}
+{% block body_class %}
+
+{% endblock %}
+{% block content %}
+<form method="post" enctype="multipart/form-data">
+{% csrf_token %}
+<H1>Расчет детализации по подразделениям:</H1>
+
+<p>Выберите подразделение</p>
+
+<select name="ch_name" title="{{ ch_org }}">
+<optgroup label="Подразделения" >
+    {% for s in o_name %}
+<option data-method="post" name="ch_name" value="{{ s }}" >
+
+<ul>
+
+    <li>{{ s }}</li>
+
+</ul>
+</option>
+{% endfor %}
+</optgroup>
+</select>
+
+
+
+<p>Укажите диапозон дат для расчета</p>
+<p><input name="d1" type="date" placeholder="Введите начальную дату"></p>
+<p><input name="d2" type="date" placeholder="Введите конечную дату"></p>
+<p>Сумма разговоров подразделения {{ ch_org }} с {{ data_n }} по {{ data_p }}  равна - {{ o_sum }} рублей</p>
+<button type="submit">Посчитать</button>
+</form>
+
+{% endblock %}

@@ -1,0 +1,21 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    АСУРД
+
+{% endblock %}
+{% block body_class %}
+
+{% endblock %}
+{% block content %}
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+    <label>Загрузка файла</label>
+    <input type="file" name="phone_file">
+    <p>Загрузка производится только файлов формата CSV</p>
+    <button type="submit">Загрузить</button>
+
+    </form>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+АСУРД
+
+{% endblock %}
+{% block body_class %}
+
+{% endblock %}
+{% block content %}
+<form method="post" enctype="multipart/form-data">
+{% csrf_token %}
+<H1>Расчет детализации за все подразделения:</H1>
+<p>Укажите диапозон дат для расчета</p>
+<p><input name="d1" type="date" placeholder="Введите начальную дату"></p>
+<p><input name="d2" type="date" placeholder="Введите конечную дату"></p>
+<p>Сумма разговоров всех подразделений с {{ data_n }} по {{ data_p }} равна: {{ summa }}</p>
+<button type="submit">Посчитать</button>
+</form>
+
+{% endblock %}
