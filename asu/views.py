@@ -71,7 +71,7 @@ def get_sum(request):
     d2 = request.POST.get('d2')
     summa = CallDetail.objects.filter(talk_date__gte=d1).filter(talk_date__lte=d2).aggregate(sum=Sum('money')).values()
     nsum = next(iter(summa))
-    return render(request, template, {'summa': nsum})
+    return render(request, template, {'summa': nsum, 'data_n': d1, 'data_p': d2})
 
 
 def get_sum_otd(request):
@@ -79,26 +79,18 @@ def get_sum_otd(request):
 
     if request.method == "GET":
         o_name = PhonesList.objects.values_list('org_name', flat=True).distinct()
+
         return render(request, template, {'o_name': o_name})
 
     ch_org = request.POST.get('ch_name')
-    print()
-    print(ch_org)
-    print()
     d1 = request.POST.get('d1')
     d2 = request.POST.get('d2')
 
     ch_num = list(PhonesList.objects.filter(org_name__istartswith=ch_org).values_list('phone_number', flat=True))
-    print()
-    print(ch_num)
-    print(type(ch_num))
-    print()
     for num in ch_num:
 
         summa = CallDetail.objects.filter(
             talk_date__gte=d1).filter(
             talk_date__lte=d2).filter(caller__iexact=num).aggregate(sum=Sum('money')).values()
-        nsum = next(iter(summa))
-        print(nsum)
-        o_sum = nsum
-        return render(request, template, {'o_sum': o_sum})
+        o_sum = next(iter(summa))
+        return render(request, template, {'o_sum': o_sum, 'ch_org': ch_org, 'data_n': d1, 'data_p': d2})
