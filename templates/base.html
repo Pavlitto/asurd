@@ -38,20 +38,17 @@
             {% block body_class %}
 
             {% endblock %}
-            <form class="form-inline my-2 my-lg-0">
-                <input class="form-control mr-sm-2" type="search" placeholder="Введите текст" aria-label="Search">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Найти</button>
-            </form>
+
         </ul>
 
         </div>
 
             {% if user.is_authenticated %}
-            <p>Добро пожаловать, {{ user.username }}. Приятного дня!</p>
-                <a class="nav-link" href="/accounts/logout/"><button type="button" class="btn btn-outline-primary">Выход</button></a>
+            <p>Добро пожаловать, {{ user.username }}!<br> Приятного дня!</p>
+                <a class="nav-link" href="/accounts/logout/"><button type="button" class="btn btn-danger">Выход</button></a>
             {% else %}
-            <p>Добро пожаловать. Для большего функционала требуется войти!</p>
-                <a class="nav-link" href="/accounts/login/"><button type="button" class="btn btn-outline-primary">Вход</button></a>
+            <p>Добро пожаловать! <br> Для большего функционала требуется войти!</p>
+                <a class="nav-link" href="/accounts/login/"><button type="button" class="btn btn-success">Вход</button></a>
             {% endif %}
 
 

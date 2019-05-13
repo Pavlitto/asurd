@@ -19,7 +19,7 @@ from phonebook.views import *
 
 
 urlpatterns = [
-    path('', phones_list),
+    path('', include('phonebook.urls')),
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
     path('asu/', include('asu.urls')),

@@ -4,10 +4,16 @@
 
 {% block title %}
     АСУРД
-    <link rel="stylesheet" href="{% static 'django_tables2/themes/paleblue/css/screen.css' %}" />
 {% endblock %}
 {% block body_class %}
     <a class="nav-link" href="/asu/upload/"><button type="button" class="btn btn-outline-primary">Загрузить файл детализации</button></a>
+    <a class="nav-link" href="/asu/sum/"><button type="button" class="btn btn-outline-primary">Расчитать общую детализацию</button></a>
+    <a class="nav-link" href="/asu/chsum/"><button type="button" class="btn btn-outline-primary">Расчитать выборочную детализацию</button></a>
+
+    <form class="form-inline my-2 my-lg-0" action="{% url 'detail_list_url' %}">
+        <input class="form-control mr-sm-2" type="search" placeholder="Введите текст" aria-label="Search" name="search">
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Найти</button>
+    </form>
 {% endblock %}
 {% block content %}
     {% render_table cdl %}

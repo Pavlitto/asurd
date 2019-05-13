@@ -3,5 +3,6 @@ from .views import *
 
 
 urlpatterns = [
-    path('', phones_list)
+    path('', phones_list, name='phone_list_url'),
+    path('upload/', phones_upload)
 ]
