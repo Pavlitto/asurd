@@ -15,8 +15,10 @@
 <p>Укажите диапозон дат для расчета</p>
 <p><input name="d1" type="date" placeholder="Введите начальную дату"></p>
 <p><input name="d2" type="date" placeholder="Введите конечную дату"></p>
-<p>Сумма разговоров всех подразделений с {{ data_n }} по {{ data_p }} равна: {{ summa }}</p>
-<button type="submit">Посчитать</button>
+<p>Сумма разговоров за это период равна: {{ summa }}</p>
+<button class="btn btn-outline-info" type="submit">Посчитать</button>
+<button class="btn btn-outline-success my-2 my-sm-0" type="submit" formaction="{% url 'get_data' %}">Выгрузить файл с указанными датами</button>
+
 </form>
 
 {% endblock %}

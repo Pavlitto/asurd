@@ -24,8 +24,11 @@ class SimpleTable(tables.Table):
 def phones_list(request):
     search_query = request.GET.get('search', '')
     if search_query:
+        print(search_query)
+        print(type)
         tables = SimpleTable(PhonesList.objects.filter(Q(org_name__icontains=search_query) |
-                                                       Q(phone_number__icontains=search_query)))
+                                                       Q(phone_number__icontains=search_query) |
+                                                       Q(dep_head__icontains=search_query)))
         RequestConfig(request, paginate={'per_page': 15}).configure(tables)
     else:
         tables = SimpleTable(PhonesList.objects.all())

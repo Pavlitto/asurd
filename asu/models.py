@@ -14,9 +14,9 @@ class CallDetail(models.Model):
     # Длительность
     call_duration = models.IntegerField(verbose_name='Длительность звонка:')
     # Сумма
-    money = models.CharField(max_length=11, verbose_name='Сумма:')
+#    money = models.CharField(max_length=11, verbose_name='Сумма:')
 
-    # money = models.DecimalField(decimal_places=2, max_digits=5, verbose_name='Сумма:')
+    money = models.DecimalField(decimal_places=2, max_digits=5, verbose_name='Сумма:')
     # Дата разговора (с секундами)
     # talk_date_sec = models.DateTimeField(max_length=19, verbose_name='Дата разговора с секундами:')
 

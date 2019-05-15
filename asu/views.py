@@ -1,9 +1,11 @@
 import csv
 import io
+from decimal import Decimal
 
 import django_tables2 as tables
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import Sum
+from django.shortcuts import HttpResponse
 from django.shortcuts import render
 from django_tables2 import RequestConfig
 
@@ -37,6 +39,7 @@ def call_detail_list(request):
     return render(request, 'asu/CDL.html', {'cdl': cdl})
 
 
+@permission_required('asu.view_CallDetail')
 def detail_upload(request):
     template = 'asu/upload_csv.html'
     prompt = {
@@ -55,12 +58,13 @@ def detail_upload(request):
         'ans_caller': column[2],
         'call_direction': column[3],
         'call_duration': column[4],
-        'money': column[5],
+        'money': Decimal(column[5].replace(',', '.')),
     } for column in csv.reader(io_string, delimiter=';')}
     CallDetail.update_by_pk(data)
     return render(request, template)
 
 
+@permission_required('asu.view_CallDetail')
 def get_sum(request):
     template = 'asu/calc.html'
 
@@ -71,9 +75,11 @@ def get_sum(request):
     d2 = request.POST.get('d2')
     summa = CallDetail.objects.filter(talk_date__gte=d1).filter(talk_date__lte=d2).aggregate(sum=Sum('money')).values()
     nsum = next(iter(summa))
-    return render(request, template, {'summa': nsum, 'data_n': d1, 'data_p': d2})
+
+    return render(request, template, {'summa': round(nsum, 2)})
 
 
+@permission_required('asu.view_CallDetail')
 def get_sum_otd(request):
     template = 'asu/asu.html'
 
@@ -88,9 +94,41 @@ def get_sum_otd(request):
 
     ch_num = list(PhonesList.objects.filter(org_name__istartswith=ch_org).values_list('phone_number', flat=True))
     for num in ch_num:
-
         summa = CallDetail.objects.filter(
             talk_date__gte=d1).filter(
-            talk_date__lte=d2).filter(caller__iexact=num).aggregate(sum=Sum('money')).values()
+            talk_date__lte=d2).filter(
+            caller__iexact=num).aggregate(
+            sum=Sum('money')).values()
         o_sum = next(iter(summa))
-        return render(request, template, {'o_sum': o_sum, 'ch_org': ch_org, 'data_n': d1, 'data_p': d2})
+
+        return render(request, template, {'o_sum': round(o_sum, 2), 'ch_org': ch_org})
+
+
+def download_sum_otd(request):
+    d1 = request.POST.get('d1')
+    d2 = request.POST.get('d2')
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="sum_for_otd.csv"'
+
+    writer = csv.writer(response, delimiter=';')
+    response.write(u'\ufeff'.encode('utf8'))
+    writer.writerow(['org_name', 'summa'])
+    organisations = PhonesList.objects.values_list('org_name', flat=True)
+    orgs = list(organisations)
+    for x in orgs:
+        items = PhonesList.objects.filter(custom_p_pk__icontains=x).values_list('phone_number', flat=True)
+        for i in items:
+            summa = CallDetail.objects.filter(
+                caller__iexact=items[0]).filter(
+                talk_date__gte=d1).filter(
+                talk_date__lte=d2).aggregate(sum=Sum('money'))
+
+            round_sum = summa.get('sum')
+        if type(round_sum) == Decimal:
+            round_sum = round(round_sum, 2)
+        else:
+            round_sum = ('аббонент не разговаривал')
+        writer.writerow([x, round_sum])
+    print(type(round_sum))
+    return response

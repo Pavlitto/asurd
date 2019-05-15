@@ -5,17 +5,17 @@ from django.http import HttpResponseRedirect
 from django.contrib.auth import login, logout
 from django.views.generic.base import View
 from django.views.generic.edit import FormView
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm
 
 
 class LoginFormView(FormView):
     form_class = AuthenticationForm
 
-    # Аналогично регистрации, только используем шаблон аутентификации.
+    # Использую шаблон аутентификации.
     template_name = "accounts/login.html"
 
     # В случае успеха перенаправим на главную.
-    success_url = "/"
+    success_url = "/asu/detail/"
 
     def form_valid(self, form):
         # Получаем объект пользователя на основе введённых в форму данных.
