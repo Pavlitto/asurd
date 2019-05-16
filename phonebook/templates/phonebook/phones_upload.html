@@ -13,9 +13,12 @@
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
     <label>Загрузка файла</label>
-    <input type="file" name="phone_file">
+        <div style="width: 220px" class="custom-file">
+            <input type="file" class="custom-file-input" id="customFile" name="file">
+            <label class="custom-file-label" for="customFile">Выберите файл</label>
+        </div>
     <p>Загрузка производится только файлов формата CSV</p>
-    <button type="submit">Загрузить</button>
+    <button class="btn btn-warning" type="submit">Загрузить</button>
 
     </form>
 {% endblock %}

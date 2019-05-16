@@ -7,5 +7,6 @@ urlpatterns = [
     path('upload/', detail_upload),
     path('sum/', get_sum),
     path('chsum/', get_sum_otd),
-    path('download/', download_sum_otd, name='get_data')
+    path('download/', download_sum_all_otd, name='get_data'),
+    path('download_otd/', download_sum_otd, name='get_data_for_org')
 ]

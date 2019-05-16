@@ -4,9 +4,7 @@
 {% load static %}
 
 {% block title %}
-    Справочник телефонов
-    <link rel="stylesheet" href="{% static 'django_tables2/themes/paleblue/css/screen.css' %}" />
-    <link rel="stylesheet" type="text/css" href="{% static 'phonebook/style.css' %}" />
+    Вход в АСУРД
 {% endblock %}
 {% block body_class %}
 
@@ -15,8 +13,15 @@
     <form action="" method="post">
       {% csrf_token %}
       <!-- as_p для того, чтобы каждый элемент формы был с новой строки -->
-      {{ form.as_p }}
-      <button type="submit">Войти</button>
+        <dev><H1>  Введите данные</H1>
+                </dev>
+        <div class="form-row align-items-center">
+
+
+                {{ form.as_p }}
+                <button class="btn btn-success" type="submit">Войти</button>
+        </div>
+
     </form>
 
 {% endblock %}

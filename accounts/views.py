@@ -5,11 +5,11 @@ from django.http import HttpResponseRedirect
 from django.contrib.auth import login, logout
 from django.views.generic.base import View
 from django.views.generic.edit import FormView
-from django.contrib.auth.forms import AuthenticationForm
+from accounts.loginform import MyLoginForm
 
 
 class LoginFormView(FormView):
-    form_class = AuthenticationForm
+    form_class = MyLoginForm
 
     # Использую шаблон аутентификации.
     template_name = "accounts/login.html"
