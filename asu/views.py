@@ -1,6 +1,7 @@
 import csv
-from datetime import datetime, timedelta
 import io
+from datetime import datetime, timedelta
+from dateutil import relativedelta
 from decimal import Decimal
 
 import django_tables2 as tables
@@ -9,9 +10,10 @@ from django.db.models import Sum
 from django.shortcuts import HttpResponse
 from django.shortcuts import render
 from django_tables2 import RequestConfig
+from transliterate import translit
 
-from .models import CallDetail
 from phonebook.models import PhonesList
+from .models import CallDetail
 
 
 class CdlTable(tables.Table):
@@ -34,10 +36,10 @@ def call_detail_list(request):
 
     if search_query:
         cdl = CdlTable(CallDetail.objects.defer('custom_pk').filter(caller__icontains=search_query))
-        RequestConfig(request, paginate={'per_page': 15}).configure(cdl)
+        RequestConfig(request, paginate={'per_page': 10}).configure(cdl)
     else:
         cdl = CdlTable(CallDetail.objects.defer('custom_pk').iterator())
-        RequestConfig(request, paginate={'per_page': 15}).configure(cdl)
+        RequestConfig(request, paginate={'per_page': 10}).configure(cdl)
     return render(request, 'asu/CDL.html', {'cdl': cdl})
 
 
@@ -129,22 +131,17 @@ def download_sum_all_otd(request):
     writer = csv.writer(response, delimiter=';')
     response.write(u'\ufeff'.encode('utf8'))
     writer.writerow(['Наименование отдела', 'Номер телефона', 'Сумма разговоров за период'])
-    organisations = PhonesList.objects.values_list('org_name', flat=True)
-    orgs = list(organisations)
-    for x in orgs:
-        items = PhonesList.objects.filter(custom_p_pk__icontains=x).values_list('phone_number', flat=True)
-        for i in items:
-            summa = CallDetail.objects.filter(
-                caller__iexact=items[0]).filter(
-                talk_date__gte=d1).filter(
-                talk_date__lte=d2).aggregate(sum=Sum('money'))
-
-            round_sum = summa.get('sum')
+    phones = PhonesList.objects.values_list('phone_number', flat=True)
+    for p in phones:
+        summa = CallDetail.objects.filter(caller__exact=p).filter(talk_date__gte=d1).filter(
+            talk_date__lte=d2).aggregate(sum=Sum('money'))
+        round_sum = summa.get('sum')
         if type(round_sum) == Decimal:
             round_sum = str(round(round_sum, 2)).replace(".", ",")
         else:
             round_sum = ('аббонент не разговаривал')
-        writer.writerow([x, i, round_sum])
+        org = phones.filter(custom_p_pk__icontains=p).values_list('org_name', flat=True)
+        writer.writerow([org[0], p, round_sum])
     return response
 
 
@@ -168,7 +165,6 @@ def download_sum_otd(request):
             caller__iexact=i).filter(
             talk_date__gte=d1).filter(
             talk_date__lte=d2).aggregate(sum=Sum('money'))
-
         round_sum = summa.get('sum')
         if type(round_sum) == Decimal:
             round_sum = str(round(round_sum, 2)).replace(".", ",")
@@ -176,3 +172,63 @@ def download_sum_otd(request):
             round_sum = ('аббонент не разговаривал')
         writer.writerow([ch_org, i, round_sum])
     return response
+
+
+#   7 выгрузка нарушений выбранного подразделения
+@login_required(login_url='/accounts/login/')
+@permission_required('asu.get_sum', 'asu.view_CallDetail')
+def give_intruders(request):
+    ch_org = request.POST.get('ch_name')
+    tr_org = translit(ch_org, reversed=True)
+    d1 = request.POST.get('d1')
+    data2_change = request.POST.get('d2')
+    d2 = datetime.strptime(data2_change, "%Y-%m-%d") + timedelta(days=1)
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename= "Narushenia ' + tr_org + ' c ' + d1 + ' po ' \
+                                      + data2_change + '.csv"'
+
+    writer = csv.writer(response, delimiter=';')
+    response.write(u'\ufeff'.encode('utf8'))
+    writer.writerow(['С какого номера произведен звонок', 'Куда звонили', 'Дата разговора', 'Длительность звонка'])
+    phones = PhonesList.objects.filter(org_name__exact=ch_org).values_list('phone_number', flat=True)
+    for p in phones:
+        intruders = CallDetail.objects.filter(
+            talk_date__gte=d1).filter(
+            talk_date__lt=d2).filter(
+            caller__exact=p).filter(
+            call_duration__gt='5').values_list('caller', flat=True)
+        cd = intruders.values_list('call_duration', flat=True)
+        to_addr = intruders.values_list('ans_caller', flat=True)
+        tdate = intruders.values_list('talk_date', flat=True)
+        for i in range(intruders.count()):
+            writer.writerow([intruders[i], to_addr[i], tdate[i], cd[i]])
+
+    return response
+
+#   8 визуализация сумм за последние пол года
+@login_required(login_url='/accounts/login/')
+@permission_required('asu.view_CallDetail')
+def visualize_sum_month(request):
+    template = 'asu/visual.html'
+    summa = []
+    datelabel = []
+    ranger = 6
+    now_date = datetime.now()
+    fdate_dirty = now_date - relativedelta.relativedelta(months=ranger)
+    fdate_o = fdate_dirty.strftime("%Y-%m")
+    fdate_s = fdate_o + "-01 00:00:00"
+
+    for m in range(0, ranger):
+        datef = datetime.strptime(fdate_s, "%Y-%m-%d %H:%M:%S") + relativedelta.relativedelta(months=m)
+        datel = datetime.strptime(fdate_s, "%Y-%m-%d %H:%M:%S") + relativedelta.relativedelta(months=m+1)
+        sum = list(CallDetail.objects.filter(
+            talk_date__gte=datef).filter(
+            talk_date__lt=datel).aggregate(sum=Sum('money')).values())
+        datelabel.append(datef.strftime("%m-%Y"))
+        if sum[0] is None:
+            sum[0] = int(0)
+            summa.append(sum[0])
+        else:
+            sum[0] = float(round(sum[0], 2))
+            summa.append(sum[0])
+    return render(request, template, {'summa': summa, 'datelabel': datelabel})

@@ -16,8 +16,9 @@
 <p><input name="d1" type="date" placeholder="Введите начальную дату"></p>
 <p><input name="d2" type="date" placeholder="Введите конечную дату"></p>
 <p>Сумма разговоров за это период с {{ data1 }} по {{ data2 }} равна: {{ summa }}</p>
-<button class="btn btn-outline-info" type="submit">Посчитать</button>
+<button class="btn btn-outline-primary" type="submit">Посчитать</button>
 <button class="btn btn-outline-success my-2 my-sm-0" type="submit" formaction="{% url 'get_data' %}">Выгрузить файл с указанными датами</button>
+<button class="btn btn-outline-info" type="submit" formaction="{% url 'visualize' %}">Построить график за последние пол года</button>
 
 </form>
 
